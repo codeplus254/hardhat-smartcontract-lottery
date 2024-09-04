@@ -11,11 +11,13 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     let vrfCoordinatorV2PlusAddress, subscriptionId, VRFCoordinatorV2PlusMock;
 
     if (developmentChains.includes(network.name)) {
+        const accounts = await ethers.getSigners();
+        const signer = accounts[0];
         const VRFCoordinatorV2PlusMockDeployment = await deployments.get("VRFCoordinatorV2_5Mock");
         VRFCoordinatorV2PlusMock = await ethers.getContractAt(
             VRFCoordinatorV2PlusMockDeployment.abi,
             VRFCoordinatorV2PlusMockDeployment.address,
-            signer,
+            signer
         );
         vrfCoordinatorV2PlusAddress = VRFCoordinatorV2PlusMock.target;
         const transactionResponse = await VRFCoordinatorV2PlusMock.createSubscription();
@@ -58,6 +60,10 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         log("Verify...");
         await verify(raffle.address, args);
     }
+
+    log("Enter lottery with command:");
+    const networkName = network.name == "hardhat" ? "localhost" : network.name;
+    log(`yarn hardhat run scripts/enterRaffle.js --network ${networkName}`);
     log("_______________________________________________");
 };
 
